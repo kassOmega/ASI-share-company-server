@@ -5,8 +5,8 @@ const registerCustomerSchema = z.object({
   address: z.string().min(1, "phone number is required"),
   password: z.string().min(1, "password is required"),
   userName: z.string().min(1, "user name is required"),
-  totalSharePromised: z.number().min(1, "totalSharePromised is required"),
-  totalSharePaid: z.number().min(1, "payed totalSharePromised is required"),
+  totalSharePromised: z.number(),
+  totalSharePaid: z.number(),
 });
 
 const registerBoardSchema = z.object({
