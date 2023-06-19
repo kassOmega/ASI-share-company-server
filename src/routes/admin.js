@@ -1,4 +1,5 @@
 const { Router } = require("express");
+const AfricasTalking = require("africastalking");
 const HttpStatus = require("http-status");
 const { Admin, CustomerUser, BoardMembers } = require("../database");
 const {
@@ -64,7 +65,7 @@ adminRouter.get(
 
     const customers = await CustomerUser.findAll();
 
-    return res.status(200).json({ customers });
+    return res.status(200).json({ data: customers });
   }
 );
 adminRouter.get(
@@ -116,7 +117,7 @@ adminRouter.post(
       return res.status(400).json({ message: "You can't create a member" });
 
     const existingCustomer = await CustomerUser.findOne({
-      where: { fullName: req.body.fullName },
+      where: { userName: req.body.userName },
     });
 
     if (existingCustomer)
@@ -128,8 +129,8 @@ adminRouter.post(
       address: req.body.address,
       password: req.body.password,
       userName: req.body.userName,
-      totalSharePromised: req.body.totalSharePromised,
-      totalSharePaid: req.body.totalSharePaid,
+      totalSharePromised: parseInt(req.body.totalSharePromised),
+      totalSharePaid: parseInt(req.body.totalSharePaid),
       fullyPayed:
         req.body.totalSharePromised === req.body.totalSharePaid ? true : false,
     });
@@ -309,5 +310,29 @@ adminRouter.get(
     });
   }
 );
+adminRouter.get("/sms", (req, res) => {
+  const apiKey =
+    "f6131f257350d97683ec28ccd21e5ec780e36d30cd115920c0453ca536cebf82";
+  const shortCode = "32022";
+  const recipient = "+251924232022";
+  const username = "kass3me@gmail.com";
+
+  const africasTalking = new AfricasTalking({ apiKey, username });
+  const sms = africasTalking.SMS;
+  const options = {
+    to: recipient,
+    message: "Hello, this is your SMS message.",
+    from: shortCode, // Optional
+  };
+
+  sms
+    .send(options)
+    .then((response) => {
+      console.log(response);
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+});
 
 module.exports = adminRouter;

@@ -10,6 +10,8 @@
     "start": "nodemon"
   },
   "dependencies": {
+    "africastalking": "^0.6.2",
+    "cors": "^2.8.5",
     "docker": "^1.0.0",
     "dotenv": "^16.1.4",
     "express": "^4.18.2",
