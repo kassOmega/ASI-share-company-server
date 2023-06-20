@@ -59,6 +59,11 @@ const Admin = db.define(
       type: DataTypes.STRING(25),
       allowNull: false,
     },
+    role: {
+      type: DataTypes.STRING(25),
+      allowNull: false,
+      defaultValue: "admin",
+    },
   },
   { timestamps: true }
 );

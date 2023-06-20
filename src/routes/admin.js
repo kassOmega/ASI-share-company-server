@@ -15,6 +15,7 @@ const {
 } = require("./middlewares");
 const { z } = require("zod");
 const httpStatus = require("http-status");
+const { where, Op } = require("sequelize");
 const adminRouter = Router();
 
 adminRouter.post("/register", (req, res) => {
@@ -37,13 +38,9 @@ adminRouter.post(
 
     const { password, ...saved } = await admin.toJSON();
 
-    const loginToken = jwt.sign(
-      { ...saved, role: "admin" },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "1y",
-      }
-    );
+    const loginToken = jwt.sign({ ...saved }, process.env.JWT_SECRET, {
+      expiresIn: "1y",
+    });
 
     res.json({
       message: "Admin logged in",
@@ -52,44 +49,53 @@ adminRouter.post(
   }
 );
 
-adminRouter.get(
-  "/customers",
-  authMiddleware,
-  roleMiddleWare("admin"),
-  async (req, res) => {
-    const adminUser = await Admin.findByPk(req.user.id);
-    if (!adminUser)
-      return res
-        .status(400)
-        .json({ message: "you are not allowed for this service" });
+adminRouter.get("/customers", authMiddleware, async (req, res) => {
+  const adminUser = await Admin.findByPk(req.user.id);
+  if (!adminUser)
+    return res
+      .status(400)
+      .json({ message: "you are not allowed for this service" });
 
-    const customers = await CustomerUser.findAll();
+  const customers = await CustomerUser.findAll();
 
-    return res.status(200).json({ data: customers });
-  }
-);
-adminRouter.get(
-  "/customers/fully-payed",
-  authMiddleware,
-  roleMiddleWare("admin"),
-  async (req, res) => {
-    const adminUser = await Admin.findByPk(req.user.id);
-    if (!adminUser)
-      return res
-        .status(400)
-        .json({ message: "you are not allowed for this service" });
+  return res.status(200).json({ data: customers });
+});
 
-    const customers = await CustomerUser.findAll({
-      where: { fullyPayed: true },
-    });
+adminRouter.get("/customers/profile/:id", authMiddleware, async (req, res) => {
+  const adminUser = await Admin.findByPk(req.user.id);
+  if (!adminUser)
+    return res
+      .status(400)
+      .json({ message: "you are not allowed for this service" });
 
-    return res.status(200).json({ data: customers });
-  }
-);
+  const customer = await CustomerUser.findByPk(req.params.id);
+
+  if (!customer)
+    return res.status(400).json({ message: "user does not exist" });
+
+  const { password, ...saved } = await customer.toJSON();
+
+  res.json({
+    message: "customer profile",
+    data: saved,
+  });
+});
+adminRouter.get("/customers/fully-payed", authMiddleware, async (req, res) => {
+  const adminUser = await Admin.findByPk(req.user.id);
+  if (!adminUser)
+    return res
+      .status(400)
+      .json({ message: "you are not allowed for this service" });
+
+  const customers = await CustomerUser.findAll({
+    where: { fullyPayed: true },
+  });
+
+  return res.status(200).json({ data: customers });
+});
 adminRouter.get(
   "/customers/incomplete-payment",
   authMiddleware,
-  roleMiddleWare("admin"),
   async (req, res) => {
     const adminUser = await Admin.findByPk(req.user.id);
     if (!adminUser)
@@ -107,7 +113,6 @@ adminRouter.get(
 adminRouter.post(
   "/customer",
   authMiddleware,
-  roleMiddleWare("admin"),
   validateRequestBody(registerCustomerSchema),
   async (req, res) => {
     const adminUser = await Admin.findOne({
@@ -117,7 +122,7 @@ adminRouter.post(
       return res.status(400).json({ message: "You can't create a member" });
 
     const existingCustomer = await CustomerUser.findOne({
-      where: { userName: req.body.userName },
+      where: { phoneNumber: req.body.phoneNumber },
     });
 
     if (existingCustomer)
@@ -127,8 +132,6 @@ adminRouter.post(
       fullName: req.body.fullName,
       phoneNumber: req.body.phoneNumber,
       address: req.body.address,
-      password: req.body.password,
-      userName: req.body.userName,
       totalSharePromised: parseInt(req.body.totalSharePromised),
       totalSharePaid: parseInt(req.body.totalSharePaid),
       fullyPayed:
@@ -145,103 +148,91 @@ adminRouter.post(
     });
   }
 );
-adminRouter.put(
-  "/customer",
-  authMiddleware,
-  roleMiddleWare("admin"),
-  async (req, res) => {
-    const adminUser = await Admin.findOne({
-      where: { userName: req.user.userName },
+adminRouter.put("/customer", authMiddleware, async (req, res) => {
+  const adminUser = await Admin.findOne({
+    where: { userName: req.user.userName },
+  });
+  if (!adminUser)
+    return res.status(404).json({ message: "You can't update a member" });
+
+  const existingCustomer = await CustomerUser.findOne({
+    where: { id: req.body.id },
+  });
+
+  if (!existingCustomer)
+    return res.status(HttpStatus.NOT_FOUND).json({ message: "No user found" });
+
+  if (req.body.totalSharePaid <= 0)
+    return res.status(httpStatus.BAD_REQUEST).json({
+      data: existingCustomer,
+      message: "payed totalSharePromised of lots should be greater than zero",
     });
-    if (!adminUser)
-      return res.status(404).json({ message: "You can't update a member" });
 
-    const existingCustomer = await CustomerUser.findOne({
-      where: { id: req.body.id },
-    });
-
-    if (!existingCustomer)
-      return res
-        .status(HttpStatus.NOT_FOUND)
-        .json({ message: "No user found" });
-
-    if (req.body.totalSharePaid <= 0)
-      return res.status(httpStatus.BAD_REQUEST).json({
-        data: existingCustomer,
-        message: "payed totalSharePromised of lots should be greater than zero",
-      });
-
-    if (
-      parseInt(existingCustomer.totalSharePromised) <
-      parseInt(existingCustomer.totalSharePaid) + req.body.totalSharePaid
-    ) {
-      return res.status(httpStatus.BAD_REQUEST).json({
-        data: existingCustomer,
-        message: `you already have subscribed for ${
-          existingCustomer.totalSharePromised
-        } but you are exceeding the totalSharePromised by ${
-          parseInt(req.body.totalSharePaid) +
-          parseInt(existingCustomer.totalSharePaid) -
-          parseInt(existingCustomer.totalSharePromised)
-        }`,
-      });
-    }
-
-    if (
-      parseInt(existingCustomer.totalSharePromised) ===
-      parseInt(existingCustomer.totalSharePaid)
-    ) {
-      return res.status(httpStatus.BAD_REQUEST).json({
-        data: existingCustomer,
-        message: "you already have fully paid your subscription ",
-      });
-    }
-    await existingCustomer.increment(
-      { totalSharePaid: req.body.totalSharePaid },
-      { where: { id: existingCustomer.id } }
-    );
-    await existingCustomer.reload();
-    if (
-      parseInt(existingCustomer.totalSharePromised) ===
-      parseInt(existingCustomer.totalSharePaid)
-    )
-      await existingCustomer.update({
-        fullyPayed: true,
-      });
-    return res.json({
-      data: existingCustomer.toJSON(),
-      message: "Customer updated successfully",
+  if (
+    parseInt(existingCustomer.totalSharePromised) >
+    parseInt(existingCustomer.totalSharePaid) + req.body.totalSharePaid
+  ) {
+    return res.status(httpStatus.BAD_REQUEST).json({
+      data: existingCustomer,
+      message: `you already have subscribed for ${
+        existingCustomer.totalSharePromised
+      } but you are exceeding the totalSharePromised by ${
+        parseInt(existingCustomer.totalSharePaid) +
+        parseInt(req.body.totalSharePaid) -
+        parseInt(existingCustomer.totalSharePromised)
+      }`,
     });
   }
-);
-adminRouter.get(
-  "/board-members",
-  authMiddleware,
-  roleMiddleWare("admin"),
-  async (req, res) => {
-    const User = await Admin.findOne({
-      where: { userName: req.user.userName },
-    });
-    if (!User)
-      return res
-        .status(400)
-        .json({ message: "You aren't allowed to get list of board members" });
 
-    const members = await BoardMembers.findAll({
-      attributes: { exclude: ["userName"] },
-    });
-
-    res.json({
-      message: "Member List",
-      data: members,
+  if (
+    parseInt(existingCustomer.totalSharePromised) ===
+    parseInt(existingCustomer.totalSharePaid)
+  ) {
+    return res.status(httpStatus.BAD_REQUEST).json({
+      data: existingCustomer,
+      message: "you already have fully paid your subscription ",
     });
   }
-);
+  await existingCustomer.increment(
+    { totalSharePaid: req.body.totalSharePaid },
+    { where: { id: existingCustomer.id } }
+  );
+  await existingCustomer.reload();
+  if (
+    parseInt(existingCustomer.totalSharePromised) ===
+    parseInt(existingCustomer.totalSharePaid)
+  )
+    await existingCustomer.update({
+      fullyPayed: true,
+    });
+  return res.json({
+    data: existingCustomer.toJSON(),
+    message: "Customer updated successfully",
+  });
+});
+adminRouter.get("/board-members", authMiddleware, async (req, res) => {
+  const User = await Admin.findOne({
+    where: { userName: req.user.userName },
+  });
+  if (!User)
+    return res
+      .status(400)
+      .json({ message: "You aren't allowed to get list of board members" });
+
+  const members = await Admin.findAll({
+    attributes: { exclude: ["userName"] },
+    where: { role: "board" },
+  });
+
+  res.json({
+    message: "Member List",
+    data: members,
+  });
+});
 
 adminRouter.post(
   "/board-member",
   authMiddleware,
-  roleMiddleWare("admin"),
   validateRequestBody(registerBoardSchema),
   async (req, res) => {
     const adminUser = await Admin.findOne({
@@ -250,18 +241,19 @@ adminRouter.post(
     if (!adminUser)
       return res.status(400).json({ message: "You can't create a member" });
 
-    const existingMember = await BoardMembers.findOne({
+    const existingMember = await Admin.findOne({
       where: { fullName: req.body.fullName },
     });
 
     if (existingMember)
       return res.status(400).json({ message: "user already exists" });
 
-    const newMember = BoardMembers.build({
+    const newMember = Admin.build({
       fullName: req.body.fullName,
       phoneNumber: req.body.phoneNumber,
       password: req.body.password,
       userName: req.body.userName,
+      role: "board",
     });
 
     await newMember.save();
@@ -275,41 +267,38 @@ adminRouter.post(
   }
 );
 
-adminRouter.get(
-  "/customers/stat",
-  authMiddleware,
-  roleMiddleWare("admin"),
-  async (req, res) => {
-    const adminUser = await Admin.findByPk(req.user.id);
-    if (!adminUser)
-      return res
-        .status(400)
-        .json({ message: "you are not allowed for this service" });
+adminRouter.get("/customers/stat", authMiddleware, async (req, res) => {
+  const adminUser = await Admin.findByPk(req.user.id);
+  if (!adminUser)
+    return res
+      .status(400)
+      .json({ message: "you are not allowed for this service" });
 
-    const [
+  const [
+    totalPaidShare,
+    totalRequestedShare,
+    totalShareHolders,
+    totalShareHoldersCompletelyPaid,
+  ] = await Promise.all([
+    CustomerUser.sum("totalSharePaid", {
+      where: { totalSharePromised: { [Op.gt]: 1 } },
+    }),
+    CustomerUser.sum("totalSharePromised"),
+    CustomerUser.count(),
+    CustomerUser.count({
+      where: { fullyPayed: true },
+    }),
+  ]);
+
+  return res.status(200).json({
+    data: {
+      totalShareHolders,
       totalPaidShare,
       totalRequestedShare,
-      totalShareHolders,
       totalShareHoldersCompletelyPaid,
-    ] = await Promise.all([
-      CustomerUser.sum("totalSharePaid"),
-      CustomerUser.sum("totalSharePromised"),
-      CustomerUser.count(),
-      CustomerUser.count({
-        where: { fullyPayed: true },
-      }),
-    ]);
-
-    return res.status(200).json({
-      data: {
-        totalShareHolders,
-        totalPaidShare,
-        totalRequestedShare,
-        totalShareHoldersCompletelyPaid,
-      },
-    });
-  }
-);
+    },
+  });
+});
 adminRouter.get("/sms", (req, res) => {
   const apiKey =
     "f6131f257350d97683ec28ccd21e5ec780e36d30cd115920c0453ca536cebf82";
