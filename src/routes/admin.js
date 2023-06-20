@@ -83,7 +83,7 @@ adminRouter.get(
       where: { fullyPayed: true },
     });
 
-    return res.status(200).json({ customers });
+    return res.status(200).json({ data: customers });
   }
 );
 adminRouter.get(
@@ -101,7 +101,7 @@ adminRouter.get(
       where: { fullyPayed: false },
     });
 
-    return res.status(200).json({ customers });
+    return res.status(200).json({ data: customers });
   }
 );
 adminRouter.post(
