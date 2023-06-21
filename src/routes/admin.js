@@ -18,8 +18,15 @@ const httpStatus = require("http-status");
 const { where, Op } = require("sequelize");
 const adminRouter = Router();
 
-adminRouter.post("/register", (req, res) => {
-  res.json({ message: "admin registered", data: req.body });
+adminRouter.get("/start", async (req, res) => {
+  await Admin.build({
+    fullName: "Admin",
+    phoneNumber: "000000000",
+    password: "admin@123",
+    userName: "admin",
+    role: "admin",
+  }).save();
+  res.json({ message: "admin registered" });
 });
 
 adminRouter.post(
