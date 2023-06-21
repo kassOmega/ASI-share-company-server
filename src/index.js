@@ -15,10 +15,11 @@ app.use("/api/customer", require("./routes/customer"));
 app.use("/api/admin", require("./routes/admin"));
 app.use("/api/board", require("./routes/board"));
 
-app.get("/", (req, res) => res.send("healthy!"));
+// app.get("/", (req, res) => res.send("healthy!"));
+app.use(express.static("./public"));
 
-// app.use((req, res, next, err) => {
-//   res.json({ error: err });
-// });
+app.use((req, res, next) => {
+  res.sendFile("./public/index.html");
+});
 
 app.listen(PORT, () => console.log(`server started on port ${PORT}`));
