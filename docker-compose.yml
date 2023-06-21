@@ -18,6 +18,6 @@ services:
     working_dir: /app
     restart: always
     ports:
-      - 4000:4000
+      - 6000:6000
     command: node src/index.js
     env_file: ./.env
