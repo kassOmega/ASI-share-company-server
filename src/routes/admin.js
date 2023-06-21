@@ -299,10 +299,10 @@ adminRouter.get("/customers/stat", authMiddleware, async (req, res) => {
 
   return res.status(200).json({
     data: {
-      totalShareHolders,
-      totalPaidShare,
-      totalRequestedShare,
-      totalShareHoldersCompletelyPaid,
+      totalShareHolders: totalShareHolders ?? 0,
+      totalPaidShare: totalPaidShare ?? 0,
+      totalRequestedShare: totalRequestedShare ?? 0,
+      totalShareHoldersCompletelyPaid: totalShareHoldersCompletelyPaid ?? 0,
     },
   });
 });
