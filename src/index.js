@@ -3,6 +3,7 @@ const https = require("https");
 const fs = require("fs");
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 require("./database/db");
 require("./database");
 
@@ -19,7 +20,7 @@ app.use("/api/board", require("./routes/board"));
 app.use(express.static("./public"));
 
 app.use((req, res, next) => {
-  res.sendFile("./public/index.html");
+  res.sendFile(path.join(process.cwd(), "public/index.html"));
 });
 
 if (process.env.HTTPS_PORT && process.env.CERT_KEY && process.env.CERT_FILE) {
