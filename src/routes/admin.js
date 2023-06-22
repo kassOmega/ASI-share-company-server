@@ -157,14 +157,23 @@ adminRouter.post(
     });
   }
 );
-adminRouter.delete("/customer", authMiddleware, async (req, res) => {
+adminRouter.delete("/customer/:id", authMiddleware, async (req, res) => {
   const adminUser = await Admin.findOne({
     where: { userName: req.user.userName },
   });
   if (!adminUser)
     return res.status(404).json({ message: "You can't update a member" });
-  const customer = await CustomerUser.findByPk(req.params.id);
+  await (await CustomerUser.findByPk(req.params.id)).destroy();
 });
+adminRouter.delete("/board/:id", authMiddleware, async (req, res) => {
+  const adminUser = await Admin.findOne({
+    where: { userName: req.user.userName },
+  });
+  if (!adminUser)
+    return res.status(404).json({ message: "You can't update a member" });
+  await (await BoardMembers.findByPk(req.params.id)).destroy();
+});
+
 adminRouter.put("/customer", authMiddleware, async (req, res) => {
   const adminUser = await Admin.findOne({
     where: { userName: req.user.userName },
