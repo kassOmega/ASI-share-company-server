@@ -12,6 +12,7 @@ const registerCustomerSchema = z.object({
 const registerBoardSchema = z.object({
   fullName: z.string().min(1, "full name is required"),
   phoneNumber: z.string().min(1, "phone number is required"),
+  address: z.string().min(1, "phone number is required"),
   password: z.string().min(1, "password is required"),
   userName: z.string().min(1, "user name is required"),
 });
