@@ -76,9 +76,11 @@ adminRouter.get("/customers/profile/:id", authMiddleware, async (req, res) => {
       .json({ message: "you are not allowed for this service" });
 
   const customer = await CustomerUser.findByPk(req.params.id);
-
   if (!customer)
     return res.status(400).json({ message: "user does not exist" });
+  await customer.destroy();
+
+  res.status(200).send("User deleted");
 
   const { password, ...saved } = await customer.toJSON();
 
@@ -155,6 +157,14 @@ adminRouter.post(
     });
   }
 );
+adminRouter.delete("/customer", authMiddleware, async (req, res) => {
+  const adminUser = await Admin.findOne({
+    where: { userName: req.user.userName },
+  });
+  if (!adminUser)
+    return res.status(404).json({ message: "You can't update a member" });
+  const customer = await CustomerUser.findByPk(req.params.id);
+});
 adminRouter.put("/customer", authMiddleware, async (req, res) => {
   const adminUser = await Admin.findOne({
     where: { userName: req.user.userName },
@@ -258,6 +268,7 @@ adminRouter.post(
     const newMember = Admin.build({
       fullName: req.body.fullName,
       phoneNumber: req.body.phoneNumber,
+      address: req.body.address,
       password: req.body.password,
       userName: req.body.userName,
       role: "board",
