@@ -78,9 +78,6 @@ adminRouter.get("/customers/profile/:id", authMiddleware, async (req, res) => {
   const customer = await CustomerUser.findByPk(req.params.id);
   if (!customer)
     return res.status(400).json({ message: "user does not exist" });
-  await customer.destroy();
-
-  res.status(200).send("User deleted");
 
   const { password, ...saved } = await customer.toJSON();
 
