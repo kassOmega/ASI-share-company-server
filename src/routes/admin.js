@@ -158,14 +158,14 @@ adminRouter.delete("/customer/:id", authMiddleware, async (req, res) => {
   const adminUser = await Admin.findOne({
     where: { userName: req.user.userName },
   });
-  const user = await BoardMembers.findByPk(req.params.id);
+  const user = await CustomerUser.findByPk(req.params.id);
   if (!adminUser)
     return res.status(404).json({ message: "You can't update a member" });
   if (!user)
     return res.status(HttpStatus.NOT_FOUND).json({ message: "No user found" });
 
   await user.destroy();
-  return res.status(404).json({ message: "User Deleted" });
+  return res.status.json({ message: "User Deleted" });
 });
 
 adminRouter.delete("/board/:id", authMiddleware, async (req, res) => {
@@ -179,7 +179,7 @@ adminRouter.delete("/board/:id", authMiddleware, async (req, res) => {
     return res.status(HttpStatus.NOT_FOUND).json({ message: "No user found" });
 
   await user.destroy();
-  return res.status(404).json({ message: "User Deleted" });
+  return res.status.json({ message: "User Deleted" });
 });
 
 adminRouter.put("/customer", authMiddleware, async (req, res) => {
