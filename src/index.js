@@ -1,10 +1,11 @@
 require("dotenv").config();
+const https = require("https");
+const fs = require("fs");
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 require("./database/db");
 require("./database");
-
-const PORT = process.env.PORT || 3000;
 
 const app = express();
 
@@ -15,10 +16,27 @@ app.use("/api/customer", require("./routes/customer"));
 app.use("/api/admin", require("./routes/admin"));
 app.use("/api/board", require("./routes/board"));
 
-app.get("/", (req, res) => res.send("healthy!"));
+// app.get("/", (req, res) => res.send("healthy!"));
+app.use(express.static("./public"));
 
-// app.use((req, res, next, err) => {
-//   res.json({ error: err });
-// });
+app.use((req, res, next) => {
+  res.sendFile(path.join(process.cwd(), "public/index.html"));
+});
 
-app.listen(PORT, () => console.log(`server started on port ${PORT}`));
+if (process.env.HTTPS_PORT && process.env.CERT_KEY && process.env.CERT_FILE) {
+  https
+    .createServer(
+      {
+        key: fs.readFileSync(process.env.CERT_KEY),
+        cert: fs.readFileSync(process.env.CERT_FILE),
+      },
+      app
+    )
+    .listen(process.env.HTTPS_PORT, () => {
+      console.log(`server is running on https port ${process.env.HTTPS_PORT}`);
+    });
+} else {
+  app.listen(process.env.PORT, () =>
+    console.log(`server is running on http port ${process.env.PORT}`)
+  );
+}

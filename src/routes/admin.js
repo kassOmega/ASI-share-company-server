@@ -18,8 +18,15 @@ const httpStatus = require("http-status");
 const { where, Op } = require("sequelize");
 const adminRouter = Router();
 
-adminRouter.post("/register", (req, res) => {
-  res.json({ message: "admin registered", data: req.body });
+adminRouter.get("/start", async (req, res) => {
+  await Admin.build({
+    fullName: "Admin",
+    phoneNumber: "000000000",
+    password: "admin@123",
+    userName: "admin",
+    role: "admin",
+  }).save();
+  res.json({ message: "admin registered" });
 });
 
 adminRouter.post(
@@ -292,10 +299,10 @@ adminRouter.get("/customers/stat", authMiddleware, async (req, res) => {
 
   return res.status(200).json({
     data: {
-      totalShareHolders,
-      totalPaidShare,
-      totalRequestedShare,
-      totalShareHoldersCompletelyPaid,
+      totalShareHolders: totalShareHolders ?? 0,
+      totalPaidShare: totalPaidShare ?? 0,
+      totalRequestedShare: totalRequestedShare ?? 0,
+      totalShareHoldersCompletelyPaid: totalShareHoldersCompletelyPaid ?? 0,
     },
   });
 });

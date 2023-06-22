@@ -1,0 +1,26 @@
+name: Deploy
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          cache: "npm"
+
+      - name: Deploy
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: asi.dagu.app
+          username: root
+          key: ${{ secrets.SSH_KEY }}
+          strip_components: 1
+          source: ./*
+          target: /root/kass/server
