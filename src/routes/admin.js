@@ -73,11 +73,11 @@ adminRouter.get(
   authMiddleware,
   roleMiddleWare,
   async (req, res) => {
-    // const adminUser = await Admin.findByPk(req.user.id);
-    // if (!adminUser)
-    //   return res
-    //     .status(400)
-    //     .json({ message: "you are not allowed for this service" });
+    const adminUser = await Admin.findByPk(req.user.id);
+    if (!adminUser)
+      return res
+        .status(400)
+        .json({ message: "you are not allowed for this service" });
 
     const customer = await CustomerUser.findByPk(req.params.id);
     if (!customer)
