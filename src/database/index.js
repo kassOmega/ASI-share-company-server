@@ -64,6 +64,10 @@ const Admin = db.define(
       allowNull: false,
       defaultValue: "admin",
     },
+    address: {
+      type: DataTypes.STRING(25),
+      allowNull: false,
+    },
   },
   { timestamps: true }
 );

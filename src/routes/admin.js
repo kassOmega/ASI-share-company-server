@@ -169,17 +169,15 @@ adminRouter.delete("/customer/:id", authMiddleware, async (req, res) => {
 });
 
 adminRouter.delete("/board/:id", authMiddleware, async (req, res) => {
-  const adminUser = await Admin.findOne({
-    where: { userName: req.user.userName },
-  });
-  const user = await BoardMembers.findByPk(req.params.id);
+  const adminUser = await Admin.findByPk(req.user.id);
+  const user = await Admin.findByPk(req.params.id);
   if (!adminUser)
     return res.status(404).json({ message: "You can't update a member" });
   if (!user)
     return res.status(HttpStatus.NOT_FOUND).json({ message: "No user found" });
 
   await user.destroy();
-  return res.status.json({ message: "User Deleted" });
+  return res.status().json({ message: "User Deleted" });
 });
 
 adminRouter.put("/customer", authMiddleware, async (req, res) => {
@@ -257,7 +255,10 @@ adminRouter.get("/board-members", authMiddleware, async (req, res) => {
     attributes: { exclude: ["userName"] },
     where: { role: "board" },
   });
-
+  if (!members)
+    res.json({
+      message: "No Member available",
+    });
   res.json({
     message: "Member List",
     data: members,
