@@ -68,29 +68,24 @@ adminRouter.get("/customers", authMiddleware, async (req, res) => {
   return res.status(200).json({ data: customers });
 });
 
-adminRouter.get(
-  "/customers/profile/:id",
-  authMiddleware,
-  roleMiddleWare,
-  async (req, res) => {
-    const adminUser = await Admin.findByPk(req.user.id);
-    if (!adminUser)
-      return res
-        .status(400)
-        .json({ message: "you are not allowed for this service" });
+adminRouter.get("/customers/profile/:id", authMiddleware, async (req, res) => {
+  const adminUser = await Admin.findByPk(req.user.id);
+  if (!adminUser)
+    return res
+      .status(400)
+      .json({ message: "you are not allowed for this service" });
 
-    const customer = await CustomerUser.findByPk(req.params.id);
-    if (!customer)
-      return res.status(400).json({ message: "user does not exist" });
+  const customer = await CustomerUser.findByPk(req.params.id);
+  if (!customer)
+    return res.status(400).json({ message: "user does not exist" });
 
-    const { password, ...saved } = await customer.toJSON();
+  const { password, ...saved } = await customer.toJSON();
 
-    res.json({
-      message: "customer profile",
-      data: saved,
-    });
-  }
-);
+  res.json({
+    message: "customer profile",
+    data: saved,
+  });
+});
 adminRouter.get("/customers/fully-payed", authMiddleware, async (req, res) => {
   const adminUser = await Admin.findByPk(req.user.id);
   if (!adminUser)
