@@ -177,7 +177,7 @@ adminRouter.delete("/board/:id", authMiddleware, async (req, res) => {
     return res.status(HttpStatus.NOT_FOUND).json({ message: "No user found" });
 
   await user.destroy();
-  return res.status().json({ message: "User Deleted" });
+  return res.json({ message: "User Deleted" });
 });
 
 adminRouter.put("/customer", authMiddleware, async (req, res) => {
