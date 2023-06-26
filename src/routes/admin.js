@@ -38,7 +38,7 @@ adminRouter.post(
       attributes: { include: ["password"] },
     });
 
-    if (!admin) return res.status(400).json({ message: "user does not exist" });
+    if (!admin) return res.status(400).json({ message: "User does not exist" });
 
     if (admin.password !== req.body.password)
       return res.status(400).json({ message: "invalid credentials" });
@@ -77,11 +77,11 @@ adminRouter.get("/customers/profile/:id", authMiddleware, async (req, res) => {
   if (!adminUser)
     return res
       .status(400)
-      .json({ message: "you are not allowed for this service" });
+      .json({ message: "You are not allowed for this service" });
 
   const customer = await CustomerUser.findByPk(req.params.id);
   if (!customer)
-    return res.status(400).json({ message: "user does not exist" });
+    return res.status(400).json({ message: "User does not exist" });
 
   const { password, ...saved } = await customer.toJSON();
 
@@ -95,7 +95,7 @@ adminRouter.get("/customers/fully-payed", authMiddleware, async (req, res) => {
   if (!adminUser)
     return res
       .status(400)
-      .json({ message: "you are not allowed for this service" });
+      .json({ message: "You are not allowed for this service" });
 
   const customers = await CustomerUser.findAll({
     where: { fullyPayed: true },
@@ -111,7 +111,7 @@ adminRouter.get(
     if (!adminUser)
       return res
         .status(400)
-        .json({ message: "you are not allowed for this service" });
+        .json({ message: "You are not allowed for this service" });
 
     const customers = await CustomerUser.findAll({
       where: { fullyPayed: false },
@@ -136,7 +136,7 @@ adminRouter.post(
     });
 
     if (existingCustomer)
-      return res.status(400).json({ message: "user already exists" });
+      return res.status(400).json({ message: "User already exists" });
 
     const newCustomer = CustomerUser.build({
       fullName: req.body.fullName,
@@ -201,7 +201,7 @@ adminRouter.put("/customer", authMiddleware, async (req, res) => {
   if (req.body.totalSharePaid <= 0)
     return res.status(httpStatus.BAD_REQUEST).json({
       data: existingCustomer,
-      message: "payed totalSharePromised of lots should be greater than zero",
+      message: "Payed totalSharePromised of lots should be greater than zero",
     });
 
   if (
@@ -226,7 +226,7 @@ adminRouter.put("/customer", authMiddleware, async (req, res) => {
   ) {
     return res.status(httpStatus.BAD_REQUEST).json({
       data: existingCustomer,
-      message: "you already have fully paid your subscription ",
+      message: "You already have fully paid your subscription ",
     });
   }
   await existingCustomer.increment(
@@ -285,7 +285,7 @@ adminRouter.post(
     });
 
     if (existingMember)
-      return res.status(400).json({ message: "user already exists" });
+      return res.status(400).json({ message: "User already exists" });
 
     const newMember = Admin.build({
       fullName: req.body.fullName,
@@ -312,7 +312,7 @@ adminRouter.get("/customers/stat", authMiddleware, async (req, res) => {
   if (!adminUser)
     return res
       .status(400)
-      .json({ message: "you are not allowed for this service" });
+      .json({ message: "You are not allowed for this service" });
 
   const [
     totalPaidShare,
