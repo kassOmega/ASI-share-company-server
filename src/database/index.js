@@ -9,7 +9,7 @@ const CustomerUser = db.define(
       type: DataTypes.BIGINT({ unsigned: true }),
     },
     customerID: {
-      type: DataTypes.INTEGER(),
+      type: DataTypes.STRING(),
       allowNull: false,
       defaultValue: 0,
     },
