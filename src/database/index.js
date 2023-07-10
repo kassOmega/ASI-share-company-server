@@ -8,6 +8,11 @@ const CustomerUser = db.define(
       primaryKey: true,
       type: DataTypes.BIGINT({ unsigned: true }),
     },
+    customerID: {
+      type: DataTypes.INTEGER(),
+      allowNull: false,
+      defaultValue: 0,
+    },
     fullName: {
       type: DataTypes.STRING(255),
       allowNull: false,

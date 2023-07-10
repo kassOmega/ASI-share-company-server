@@ -132,13 +132,14 @@ adminRouter.post(
       return res.status(400).json({ message: "You can't create a member" });
 
     const existingCustomer = await CustomerUser.findOne({
-      where: { phoneNumber: req.body.phoneNumber },
+      where: { phoneNumber: req.body.fullName },
     });
 
     if (existingCustomer)
       return res.status(400).json({ message: "User already exists" });
 
     const newCustomer = CustomerUser.build({
+      customerID: req.body.customerID,
       fullName: req.body.fullName,
       phoneNumber: req.body.phoneNumber,
       address: req.body.address,
