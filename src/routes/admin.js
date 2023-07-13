@@ -234,11 +234,11 @@ adminRouter.put("/customer/pay/:id", authMiddleware, async (req, res) => {
   if (!existingCustomer)
     return res.status(HttpStatus.NOT_FOUND).json({ message: "No user found" });
 
-  if (req.body.totalSharePaid < 0)
-    return res.status(httpStatus.BAD_REQUEST).json({
-      data: existingCustomer,
-      message: "Payed totalSharePromised of lots should be greater than zero",
-    });
+  // if (req.body.totalSharePaid < 0)
+  //   return res.status(httpStatus.BAD_REQUEST).json({
+  //     data: existingCustomer,
+  //     message: "Payed totalSharePromised of lots should be greater than zero",
+  //   });
 
   if (
     parseInt(existingCustomer.totalSharePromised) <
