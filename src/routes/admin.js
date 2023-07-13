@@ -184,7 +184,6 @@ adminRouter.put(
       phoneNumber: req.body.phoneNumber,
       address: req.body.address,
       totalSharePromised: parseInt(req.body.totalSharePromised),
-      totalSharePaid: parseInt(req.body.totalSharePaid),
       totalSharePromisedAmount: parseInt(req.body.totalSharePromisedAmount),
       totalSharePaidAmount: parseInt(req.body.totalSharePaidAmount),
       fullyPayed:
@@ -223,16 +222,14 @@ adminRouter.delete("/board/:id", authMiddleware, async (req, res) => {
   return res.json({ message: "User Deleted" });
 });
 
-adminRouter.put("/customer", authMiddleware, async (req, res) => {
+adminRouter.put("/customer/pay/:id", authMiddleware, async (req, res) => {
   const adminUser = await Admin.findOne({
     where: { userName: req.user.userName },
   });
   if (!adminUser)
     return res.status(404).json({ message: "You can't update a member" });
 
-  const existingCustomer = await CustomerUser.findOne({
-    where: { id: req.body.id },
-  });
+  const existingCustomer = await CustomerUser.findByPk(req.params.id);
 
   if (!existingCustomer)
     return res.status(HttpStatus.NOT_FOUND).json({ message: "No user found" });
@@ -244,8 +241,9 @@ adminRouter.put("/customer", authMiddleware, async (req, res) => {
     });
 
   if (
-    parseInt(existingCustomer.totalSharePromised) >
-    parseInt(existingCustomer.totalSharePaid) + req.body.totalSharePaid
+    parseInt(existingCustomer.totalSharePromised) <
+    parseInt(existingCustomer.totalSharePaid) +
+      parseInt(req.body.totalSharePaid)
   ) {
     return res.status(httpStatus.BAD_REQUEST).json({
       data: existingCustomer,

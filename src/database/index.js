@@ -28,10 +28,12 @@ const CustomerUser = db.define(
     totalSharePromised: {
       type: DataTypes.INTEGER({ unsigned: true }),
       allowNull: false,
+      defaultValue: 5,
     },
     totalSharePaid: {
       type: DataTypes.INTEGER({ unsigned: true }),
       allowNull: false,
+      defaultValue: 0,
     },
     totalSharePromisedAmount: {
       type: DataTypes.DOUBLE({ unsigned: true }),
