@@ -33,6 +33,16 @@ const CustomerUser = db.define(
       type: DataTypes.INTEGER({ unsigned: true }),
       allowNull: false,
     },
+    totalSharePromisedAmount: {
+      type: DataTypes.DOUBLE({ unsigned: true }),
+      allowNull: false,
+      defaultValue: 0.0,
+    },
+    totalSharePaidAmount: {
+      type: DataTypes.DOUBLE({ unsigned: true }),
+      allowNull: false,
+      defaultValue: 0.0,
+    },
     fullyPayed: {
       type: DataTypes.BOOLEAN,
       allowNull: false,

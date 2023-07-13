@@ -145,6 +145,8 @@ adminRouter.post(
       address: req.body.address,
       totalSharePromised: parseInt(req.body.totalSharePromised),
       totalSharePaid: parseInt(req.body.totalSharePaid),
+      totalSharePromisedAmount: parseInt(req.body.totalSharePromisedAmount),
+      totalSharePaidAmount: parseInt(req.body.totalSharePaidAmount),
       fullyPayed:
         req.body.totalSharePromised === req.body.totalSharePaid ? true : false,
     });
@@ -156,6 +158,42 @@ adminRouter.post(
     res.json({
       message: "Customer registered",
       data: saved,
+    });
+  }
+);
+
+adminRouter.put(
+  "/customer/:id",
+  authMiddleware,
+  validateRequestBody(registerCustomerSchema),
+  async (req, res) => {
+    const adminUser = await Admin.findOne({
+      where: { userName: req.user.userName },
+    });
+    if (!adminUser)
+      return res.status(400).json({ message: "You can't update a member" });
+
+    const existingCustomer = await CustomerUser.findByPk(req.params.id);
+
+    if (!existingCustomer)
+      return res.status(400).json({ message: "User doesn't exists" });
+
+    await existingCustomer.update({
+      customerID: req.body.customerID,
+      fullName: req.body.fullName,
+      phoneNumber: req.body.phoneNumber,
+      address: req.body.address,
+      totalSharePromised: parseInt(req.body.totalSharePromised),
+      totalSharePaid: parseInt(req.body.totalSharePaid),
+      totalSharePromisedAmount: parseInt(req.body.totalSharePromisedAmount),
+      totalSharePaidAmount: parseInt(req.body.totalSharePaidAmount),
+      fullyPayed:
+        req.body.totalSharePromised === req.body.totalSharePaid ? true : false,
+    });
+
+    return res.json({
+      data: existingCustomer.toJSON(),
+      message: "Customer updated successfully",
     });
   }
 );
@@ -247,6 +285,7 @@ adminRouter.put("/customer", authMiddleware, async (req, res) => {
     message: "Customer updated successfully",
   });
 });
+
 adminRouter.get("/board-members", authMiddleware, async (req, res) => {
   const User = await Admin.findOne({
     where: { userName: req.user.userName },
