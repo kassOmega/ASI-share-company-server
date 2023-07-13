@@ -257,15 +257,15 @@ adminRouter.put("/customer/pay/:id", authMiddleware, async (req, res) => {
     });
   }
 
-  if (
-    parseInt(existingCustomer.totalSharePromised) ===
-    parseInt(existingCustomer.totalSharePaid)
-  ) {
-    return res.status(httpStatus.BAD_REQUEST).json({
-      data: existingCustomer,
-      message: "You already have fully paid your subscription ",
-    });
-  }
+  // if (
+  //   parseInt(existingCustomer.totalSharePromised) ===
+  //   parseInt(existingCustomer.totalSharePaid)
+  // ) {
+  //   return res.status(httpStatus.BAD_REQUEST).json({
+  //     data: existingCustomer,
+  //     message: "You already have fully paid your subscription ",
+  //   });
+  // }
   await existingCustomer.increment(
     { totalSharePaid: req.body.totalSharePaid },
     { where: { id: existingCustomer.id } }
