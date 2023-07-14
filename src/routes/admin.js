@@ -188,6 +188,7 @@ adminRouter.put(
       phoneNumber: req.body.phoneNumber,
       address: req.body.address,
       totalSharePromised: parseInt(req.body.totalSharePromised),
+      totalSharePaid: parseInt(req.body.totalSharePaid),
       totalSharePromisedAmount: parseInt(req.body.totalSharePromisedAmount),
       totalSharePaidAmount: parseInt(req.body.totalSharePaidAmount),
       fullyPayed:
