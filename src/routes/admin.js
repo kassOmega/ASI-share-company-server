@@ -405,14 +405,20 @@ adminRouter.get("/customers/stat", authMiddleware, async (req, res) => {
     totalRequestedShare,
     totalShareHolders,
     totalShareHoldersCompletelyPaid,
+    totalMoneyPromised,
+    totalMoneyPaid,
   ] = await Promise.all([
     CustomerUser.sum("totalSharePaid", {
-      where: { totalSharePromised: { [Op.gt]: 1 } },
+      where: { totalSharePaid: { [Op.gt]: 1 } },
     }),
     CustomerUser.sum("totalSharePromised"),
     CustomerUser.count(),
     CustomerUser.count({
       where: { fullyPayed: true },
+    }),
+    CustomerUser.sum("totalSharePromisedAmount"),
+    CustomerUser.sum("totalSharePaidAmount", {
+      where: { totalSharePaidAmount: { [Op.gt]: 1 } },
     }),
   ]);
 
