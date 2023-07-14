@@ -226,6 +226,49 @@ adminRouter.delete("/board/:id", authMiddleware, async (req, res) => {
   return res.json({ message: "User Deleted" });
 });
 
+adminRouter.put("/customer/reset/:id/", authMiddleware, async (req, res) => {
+  const adminUser = await Admin.findOne({
+    where: { userName: req.user.userName },
+  });
+  if (!adminUser)
+    return res.status(404).json({ message: "You can't update a member" });
+
+  const existingCustomer = await CustomerUser.findByPk(req.params.id);
+
+  if (!existingCustomer)
+    return res.status(HttpStatus.NOT_FOUND).json({ message: "No user found" });
+
+  if (req.body.totalSharePaid < 0)
+    return res.status(httpStatus.BAD_REQUEST).json({
+      data: existingCustomer,
+      message: "Payed totalSharePromised of lots should be greater than zero",
+    });
+
+  await existingCustomer.update(
+    { totalSharePaid: 0 },
+    { where: { id: existingCustomer.id } }
+  );
+  if (
+    parseInt(existingCustomer.totalSharePromised) !==
+    parseInt(existingCustomer.totalSharePaid)
+  )
+    await existingCustomer.update({
+      fullyPayed: false,
+    });
+
+  await existingCustomer.reload();
+  if (
+    parseInt(existingCustomer.totalSharePromised) ===
+    parseInt(existingCustomer.totalSharePaid)
+  )
+    await existingCustomer.update({
+      fullyPayed: true,
+    });
+  return res.json({
+    data: existingCustomer.toJSON(),
+    message: "Customer updated successfully",
+  });
+});
 adminRouter.put(
   "/customer/pay/:id/:reset",
   authMiddleware,
