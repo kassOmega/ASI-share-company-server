@@ -269,73 +269,67 @@ adminRouter.put("/customer/reset/:id/", authMiddleware, async (req, res) => {
     message: "Customer updated successfully",
   });
 });
-adminRouter.put(
-  "/customer/pay/:id/:reset",
-  authMiddleware,
-  async (req, res) => {
-    const adminUser = await Admin.findOne({
-      where: { userName: req.user.userName },
+adminRouter.put("/customer/pay/:id/", authMiddleware, async (req, res) => {
+  const adminUser = await Admin.findOne({
+    where: { userName: req.user.userName },
+  });
+  if (!adminUser)
+    return res.status(404).json({ message: "You can't update a member" });
+
+  const existingCustomer = await CustomerUser.findByPk(req.params.id);
+
+  if (!existingCustomer)
+    return res.status(HttpStatus.NOT_FOUND).json({ message: "No user found" });
+
+  if (req.body.totalSharePaid < 0)
+    return res.status(httpStatus.BAD_REQUEST).json({
+      data: existingCustomer,
+      message: "Payed totalSharePromised of lots should be greater than zero",
     });
-    if (!adminUser)
-      return res.status(404).json({ message: "You can't update a member" });
 
-    const existingCustomer = await CustomerUser.findByPk(req.params.id);
-
-    if (!existingCustomer)
-      return res
-        .status(HttpStatus.NOT_FOUND)
-        .json({ message: "No user found" });
-
-    if (req.body.totalSharePaid < 0)
-      return res.status(httpStatus.BAD_REQUEST).json({
-        data: existingCustomer,
-        message: "Payed totalSharePromised of lots should be greater than zero",
-      });
-
-    if (
-      parseInt(existingCustomer.totalSharePromised) <
-      parseInt(existingCustomer.totalSharePaid) +
-        parseInt(req.body.totalSharePaid)
-    ) {
-      return res.status(httpStatus.BAD_REQUEST).json({
-        data: existingCustomer,
-        message: `you already have subscribed for ${
-          existingCustomer.totalSharePromised
-        } but you are exceeding the totalSharePromised by ${
-          parseInt(existingCustomer.totalSharePaid) +
-          parseInt(req.body.totalSharePaid) -
-          parseInt(existingCustomer.totalSharePromised)
-        }`,
-      });
-    }
-
-    // if (
-    //   parseInt(existingCustomer.totalSharePromised) ===
-    //   parseInt(existingCustomer.totalSharePaid)
-    // ) {
-    //   return res.status(httpStatus.BAD_REQUEST).json({
-    //     data: existingCustomer,
-    //     message: "You already have fully paid your subscription ",
-    //   });
-    // }
-    await existingCustomer.increment(
-      { totalSharePaid: req.body.totalSharePaid },
-      { where: { id: existingCustomer.id } }
-    );
-    await existingCustomer.reload();
-    if (
-      parseInt(existingCustomer.totalSharePromised) ===
-      parseInt(existingCustomer.totalSharePaid)
-    )
-      await existingCustomer.update({
-        fullyPayed: true,
-      });
-    return res.json({
-      data: existingCustomer.toJSON(),
-      message: "Customer updated successfully",
+  if (
+    parseInt(existingCustomer.totalSharePromised) <
+    parseInt(existingCustomer.totalSharePaid) +
+      parseInt(req.body.totalSharePaid)
+  ) {
+    return res.status(httpStatus.BAD_REQUEST).json({
+      data: existingCustomer,
+      message: `you already have subscribed for ${
+        existingCustomer.totalSharePromised
+      } but you are exceeding the totalSharePromised by ${
+        parseInt(existingCustomer.totalSharePaid) +
+        parseInt(req.body.totalSharePaid) -
+        parseInt(existingCustomer.totalSharePromised)
+      }`,
     });
   }
-);
+
+  // if (
+  //   parseInt(existingCustomer.totalSharePromised) ===
+  //   parseInt(existingCustomer.totalSharePaid)
+  // ) {
+  //   return res.status(httpStatus.BAD_REQUEST).json({
+  //     data: existingCustomer,
+  //     message: "You already have fully paid your subscription ",
+  //   });
+  // }
+  await existingCustomer.increment(
+    { totalSharePaid: req.body.totalSharePaid },
+    { where: { id: existingCustomer.id } }
+  );
+  await existingCustomer.reload();
+  if (
+    parseInt(existingCustomer.totalSharePromised) ===
+    parseInt(existingCustomer.totalSharePaid)
+  )
+    await existingCustomer.update({
+      fullyPayed: true,
+    });
+  return res.json({
+    data: existingCustomer.toJSON(),
+    message: "Customer updated successfully",
+  });
+});
 
 adminRouter.get("/board-members", authMiddleware, async (req, res) => {
   const User = await Admin.findOne({
