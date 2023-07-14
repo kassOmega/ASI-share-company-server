@@ -428,8 +428,8 @@ adminRouter.get("/customers/stat", authMiddleware, async (req, res) => {
       totalPaidShare: totalPaidShare ?? 0,
       totalRequestedShare: totalRequestedShare ?? 0,
       totalShareHoldersCompletelyPaid: totalShareHoldersCompletelyPaid ?? 0,
-      totalSharePromisedAmount: totalSharePromisedAmount ?? 0,
-      totalSharePaidAmount: totalSharePaidAmount ?? 0,
+      totalSharePromisedAmount: totalMoneyPromised ?? 0,
+      totalSharePaidAmount: totalMoneyPaid ?? 0,
     },
   });
 });
