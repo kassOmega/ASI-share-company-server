@@ -248,11 +248,19 @@ adminRouter.put(
         data: existingCustomer,
         message: "Payed totalSharePromised of lots should be greater than zero",
       });
+
     if (req.params.reset) {
       await existingCustomer.update(
         { totalSharePaid: 0 },
         { where: { id: existingCustomer.id } }
       );
+      if (
+        parseInt(existingCustomer.totalSharePromised) !==
+        parseInt(existingCustomer.totalSharePaid)
+      )
+        await existingCustomer.update({
+          fullyPayed: false,
+        });
       return res.json({
         data: existingCustomer.toJSON(),
         message: "Customer updated successfully",
