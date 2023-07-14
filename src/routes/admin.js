@@ -66,7 +66,9 @@ adminRouter.get("/customers", authMiddleware, async (req, res) => {
   const customers = await CustomerUser.findAll({
     where: {
       fullName: { [Op.like]: `%${search}%` },
-      customerID: { [Op.like]: `%${search}%` },
+      OR: {
+        customerID: { [Op.like]: `%${search}%` },
+      },
     },
   });
 
