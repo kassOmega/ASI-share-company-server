@@ -18,6 +18,7 @@ app.use("/api/board", require("./routes/board"));
 
 // app.get("/", (req, res) => res.send("healthy!"));
 app.use(express.static("./public"));
+app.use("/uploads", express.static("./uploads"));
 
 app.use((req, res, next) => {
   res.sendFile(path.join(process.cwd(), "public/index.html"));
