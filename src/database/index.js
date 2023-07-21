@@ -25,6 +25,10 @@ const CustomerUser = db.define(
       type: DataTypes.STRING(25),
       allowNull: false,
     },
+    profilePicture: {
+      type: DataTypes.STRING(1024),
+      allowNull: true,
+    },
     totalSharePromised: {
       type: DataTypes.INTEGER({ unsigned: true }),
       allowNull: false,
