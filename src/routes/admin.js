@@ -179,7 +179,7 @@ adminRouter.put(
       return res.status(400).json({ message: "User doesn't exists" });
 
     await existingCustomer.update({
-      profilePicture: `http://localhost:4000/${req.file.path}`,
+      profilePicture: `${req.file.path}`,
     });
 
     const { attachments, ...other } = existingCustomer.toJSON();
