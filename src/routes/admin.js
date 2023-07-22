@@ -179,11 +179,35 @@ adminRouter.put(
       return res.status(400).json({ message: "User doesn't exists" });
 
     await existingCustomer.update({
-      profilePicture: req.file.path,
+      profilePicture: `http://localhost:4000/${req.file.path}`,
     });
 
+    const { attachments, ...other } = existingCustomer.toJSON();
+    const newAttachments = JSON.parse(attachments);
     return res.json({
-      data: existingCustomer.toJSON(),
+      data: { ...other, newAttachments },
+      message: "Customer updated successfully",
+    });
+  }
+);
+// upload a profile picture for an existing customer
+adminRouter.put(
+  "/customer/attachments/:id",
+  authMiddleware,
+  upload.array("attachments", 10),
+  async (req, res) => {
+    const existingCustomer = await CustomerUser.findByPk(req.params.id);
+
+    if (!existingCustomer)
+      return res.status(400).json({ message: "User doesn't exists" });
+
+    await existingCustomer.update({
+      attachments: JSON.stringify(req.files.map((item) => item.path)),
+    });
+    const { attachments, ...other } = existingCustomer.toJSON();
+    const newAttachments = JSON.parse(attachments);
+    return res.json({
+      data: { ...other, newAttachments },
       message: "Customer updated successfully",
     });
   }
@@ -218,8 +242,10 @@ adminRouter.put(
         req.body.totalSharePromised === req.body.totalSharePaid ? true : false,
     });
 
+    const { attachments, ...other } = existingCustomer.toJSON();
+    const newAttachments = JSON.parse(attachments);
     return res.json({
-      data: existingCustomer.toJSON(),
+      data: { ...other, newAttachments },
       message: "Customer updated successfully",
     });
   }

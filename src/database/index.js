@@ -29,6 +29,10 @@ const CustomerUser = db.define(
       type: DataTypes.STRING(1024),
       allowNull: true,
     },
+    attachments: {
+      type: DataTypes.STRING(1024),
+      allowNull: true,
+    },
     totalSharePromised: {
       type: DataTypes.INTEGER({ unsigned: true }),
       allowNull: false,

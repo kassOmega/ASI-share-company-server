@@ -1,12 +1,12 @@
 const multer = require("multer");
-
+const { v4: uuidv4 } = require("uuid");
 // Set up storage for uploaded files
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads/");
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
+    cb(null, uuidv4());
   },
 });
 
