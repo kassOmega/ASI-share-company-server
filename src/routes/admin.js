@@ -88,11 +88,12 @@ adminRouter.get("/customers/profile/:id", authMiddleware, async (req, res) => {
   if (!customer)
     return res.status(400).json({ message: "User does not exist" });
 
-  const { password, ...saved } = await customer.toJSON();
+  const { password, attachments, ...saved } = await customer.toJSON();
+  const newAttachments = JSON.parse(attachments);
 
   res.json({
     message: "customer profile",
-    data: saved,
+    data: { ...saved, attachments: newAttachments },
   });
 });
 adminRouter.get("/customers/fully-payed", authMiddleware, async (req, res) => {
