@@ -16,7 +16,7 @@ const {
 const { z } = require("zod");
 const httpStatus = require("http-status");
 const { where, Op } = require("sequelize");
-const upload = require("./upload");
+const { uploadAttachments, uploadProfile } = require("./upload");
 const adminRouter = Router();
 
 adminRouter.get("/start", async (req, res) => {
@@ -171,7 +171,7 @@ adminRouter.post(
 adminRouter.put(
   "/customer/picture/:id",
   authMiddleware,
-  upload.single("pic"),
+  uploadProfile.single("pic"),
   async (req, res) => {
     const existingCustomer = await CustomerUser.findByPk(req.params.id);
 
@@ -194,7 +194,7 @@ adminRouter.put(
 adminRouter.put(
   "/customer/attachments/:id",
   authMiddleware,
-  upload.array("attachments", 10),
+  uploadAttachments.array("attachments", 10),
   async (req, res) => {
     const existingCustomer = await CustomerUser.findByPk(req.params.id);
 
