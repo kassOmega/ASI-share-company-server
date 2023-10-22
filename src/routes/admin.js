@@ -126,6 +126,23 @@ adminRouter.get(
     return res.status(200).json({ data: customers });
   }
 );
+// adminRouter.get(
+//   "/customers/payment-filter",
+//   authMiddleware,
+//   async (req, res) => {
+//     const adminUser = await Admin.findByPk(req.user.id);
+//     if (!adminUser)
+//       return res
+//         .status(400)
+//         .json({ message: "You are not allowed for this service" });
+
+//     const customers = await CustomerUser.findAll({
+//       where: { fullyPayed: false },
+//     });
+
+//     return res.status(200).json({ data: customers });
+//   }
+// );
 adminRouter.post(
   "/customer",
   authMiddleware,
@@ -457,6 +474,8 @@ adminRouter.get("/customers/stat", authMiddleware, async (req, res) => {
     totalShareHoldersCompletelyPaid,
     totalMoneyPromised,
     totalMoneyPaid,
+    startedPay,
+    paid10kAndAbove,
   ] = await Promise.all([
     CustomerUser.sum("totalSharePaid", {
       where: { totalSharePaid: { [Op.gt]: 1 } },
@@ -470,8 +489,14 @@ adminRouter.get("/customers/stat", authMiddleware, async (req, res) => {
     CustomerUser.sum("totalSharePaidAmount", {
       where: { totalSharePaidAmount: { [Op.gt]: 1 } },
     }),
+    CustomerUser.count( {
+      where: { totalSharePaidAmount: { [Op.gte]: 1 } },
+    }),
+    CustomerUser.count( {
+      where: { totalSharePaidAmount: { [Op.gte]: 10000 } },
+    }),
   ]);
-
+/**totalSharePaidAmount====>birr */
   return res.status(200).json({
     data: {
       totalShareHolders: totalShareHolders ?? 0,
@@ -480,6 +505,9 @@ adminRouter.get("/customers/stat", authMiddleware, async (req, res) => {
       totalShareHoldersCompletelyPaid: totalShareHoldersCompletelyPaid ?? 0,
       totalSharePromisedAmount: totalMoneyPromised ?? 0,
       totalSharePaidAmount: totalMoneyPaid ?? 0,
+      startedPay:startedPay,
+    paid10kAndAbove:paid10kAndAbove
+
     },
   });
 });
