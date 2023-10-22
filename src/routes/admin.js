@@ -64,8 +64,8 @@ adminRouter.get("/customers", authMiddleware, async (req, res) => {
       .status(400)
       .json({ message: "you are not allowed for this service" });
   const search = req.query.name ? req.query.name : "";
-  const min=req.query.min 
-  const max=req.query.max
+  const min=req.query.min ?req.query.min :null
+  const max=req.query.max?req.query.max:null
 
   const customers = await CustomerUser.findAll({
     where: {
@@ -73,7 +73,7 @@ adminRouter.get("/customers", authMiddleware, async (req, res) => {
         { fullName: { [Op.like]: `%${search}%` } },
         { customerID: { [Op.like]: `%${search}%` } },
       ],
-      totalSharePaidAmount: { [Op.between]: [min, max]}
+       totalSharePaidAmount: { [Op.between]: [min, max]}
     },
   });
 
