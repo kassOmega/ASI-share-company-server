@@ -477,7 +477,19 @@ adminRouter.get("/customers/stat", authMiddleware, async (req, res) => {
     totalMoneyPromised,
     totalMoneyPaid,
     startedPay,
-    paid10kAndAbove,
+    usersPaid10kAndAbove,
+    moneyPaid10kAndAbove,
+    promisedMoney10kAndAbove,
+    paidShare10kAndAbove,
+    promisedShare10kAndAbove,
+
+
+    usersPaidBelow10k,
+    moneyPaidBelow10k,
+    promisedMoneyBelow10k,
+    paidShareBelow10k,
+    promisedShareBelow10k,
+    
   ] = await Promise.all([
     CustomerUser.sum("totalSharePaid", {
       where: { totalSharePaid: { [Op.gt]: 1 } },
@@ -497,6 +509,35 @@ adminRouter.get("/customers/stat", authMiddleware, async (req, res) => {
     CustomerUser.count( {
       where: { totalSharePaidAmount: { [Op.gte]: 10000 } },
     }),
+    CustomerUser.sum("totalSharePaidAmount", {
+      where: { totalSharePaidAmount: { [Op.gte]: 10000 } },
+    }),
+    CustomerUser.sum("totalSharePromisedAmount", {
+      where: { totalSharePaidAmount: { [Op.gte]: 10000 } },
+    }),
+    CustomerUser.sum("totalSharePaid", {
+      where: { totalSharePaidAmount: { [Op.gte]: 10000 } },
+    }),
+    CustomerUser.sum("totalSharePromised", {
+      where: { totalSharePaidAmount: { [Op.gte]: 10000 } },
+    }),
+
+
+    CustomerUser.count( {
+      where: { totalSharePaidAmount: { [Op.between]: [1,9999] } },
+    }),
+    CustomerUser.sum("totalSharePaidAmount", {
+      where: { totalSharePaidAmount: { [Op.between]: [1,9999] } },
+    }),
+    CustomerUser.sum("totalSharePromisedAmount", {
+      where: { totalSharePaidAmount: { [Op.between]: [1,9999] } },
+    }),
+    CustomerUser.sum("totalSharePaid", {
+      where: { totalSharePaidAmount: { [Op.between]: [1,9999] } },
+    }),
+    CustomerUser.sum("totalSharePromised", {
+      where: { totalSharePaidAmount: { [Op.between]: [1,9999] } },
+    }),
   ]);
 /**totalSharePaidAmount====>birr */
   return res.status(200).json({
@@ -508,7 +549,18 @@ adminRouter.get("/customers/stat", authMiddleware, async (req, res) => {
       totalSharePromisedAmount: totalMoneyPromised ?? 0,
       totalSharePaidAmount: totalMoneyPaid ?? 0,
       startedPay:startedPay,
-    paid10kAndAbove:paid10kAndAbove
+    userspaid10kAndAbove:usersPaid10kAndAbove,
+    moneyPaid10kAndAbove:moneyPaid10kAndAbove,
+    promisedMoney10kAndAbove:promisedMoney10kAndAbove,
+    paidShare10kAndAbove:paidShare10kAndAbove,
+    promisedShare10kAndAbove:    promisedShare10kAndAbove,
+
+    moneyPaidBelow10k:moneyPaidBelow10k,
+    usersPaidBelow10k:usersPaidBelow10k,
+    promisedMoneyBelow10k:promisedMoneyBelow10k,
+    paidShareBelow10k:paidShareBelow10k,
+    promisedShareBelow10k:promisedShareBelow10k,
+    
 
     },
   });
