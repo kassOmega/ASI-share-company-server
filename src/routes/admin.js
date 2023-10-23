@@ -477,14 +477,14 @@ adminRouter.get("/customers/stat", authMiddleware, async (req, res) => {
     totalMoneyPromised,
     totalMoneyPaid,
     startedPay,
-    usersPaid10kAndAbove,
+    customersPaid10kAndAbove,
     moneyPaid10kAndAbove,
     promisedMoney10kAndAbove,
     paidShare10kAndAbove,
     promisedShare10kAndAbove,
 
 
-    usersPaidBelow10k,
+    customersPaidBelow10k,
     moneyPaidBelow10k,
     promisedMoneyBelow10k,
     paidShareBelow10k,
@@ -506,6 +506,7 @@ adminRouter.get("/customers/stat", authMiddleware, async (req, res) => {
     CustomerUser.count( {
       where: { totalSharePaidAmount: { [Op.gte]: 1 } },
     }),
+
     CustomerUser.count( {
       where: { totalSharePaidAmount: { [Op.gte]: 10000 } },
     }),
@@ -549,14 +550,14 @@ adminRouter.get("/customers/stat", authMiddleware, async (req, res) => {
       totalSharePromisedAmount: totalMoneyPromised ?? 0,
       totalSharePaidAmount: totalMoneyPaid ?? 0,
       startedPay:startedPay,
-    userspaid10kAndAbove:usersPaid10kAndAbove,
+    customerspaid10kAndAbove:customersPaid10kAndAbove,
     moneyPaid10kAndAbove:moneyPaid10kAndAbove,
     promisedMoney10kAndAbove:promisedMoney10kAndAbove,
     paidShare10kAndAbove:paidShare10kAndAbove,
     promisedShare10kAndAbove:    promisedShare10kAndAbove,
 
+    customersPaidBelow10k:customersPaidBelow10k,
     moneyPaidBelow10k:moneyPaidBelow10k,
-    usersPaidBelow10k:usersPaidBelow10k,
     promisedMoneyBelow10k:promisedMoneyBelow10k,
     paidShareBelow10k:paidShareBelow10k,
     promisedShareBelow10k:promisedShareBelow10k,
