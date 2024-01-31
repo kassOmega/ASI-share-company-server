@@ -172,7 +172,7 @@ adminRouter.post(
       totalSharePaid: parseInt(req.body.totalSharePaid),
       totalSharePromisedAmount: parseInt(req.body.totalSharePromisedAmount),
       totalSharePaidAmount: parseInt(req.body.totalSharePaidAmount),
-      ServiceCharge: parseInt(req.body.ServiceCharge),
+      ServiceCharge: parseFloat(req.body.ServiceCharge),
       fullyPayed:
         req.body.totalSharePromised === req.body.totalSharePaid ? true : false,
     });
@@ -259,7 +259,7 @@ adminRouter.put(
       totalSharePaid: parseInt(req.body.totalSharePaid),
       totalSharePromisedAmount: parseInt(req.body.totalSharePromisedAmount),
       totalSharePaidAmount: parseInt(req.body.totalSharePaidAmount),
-      ServiceCharge: parseInt(req.body.ServiceCharge),
+      ServiceCharge: parseFloat(req.body.ServiceCharge),
       fullyPayed:
         req.body.totalSharePromised === req.body.totalSharePaid ? true : false,
     });
