@@ -53,6 +53,10 @@ const CustomerUser = db.define(
       allowNull: false,
       defaultValue: 0.0,
     },
+    ServiceCharge: {
+      type: DataTypes.DOUBLE({ unsigned: true }),
+      defaultValue: 0.0,
+    },
     fullyPayed: {
       type: DataTypes.BOOLEAN,
       allowNull: false,

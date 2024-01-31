@@ -64,7 +64,7 @@ adminRouter.get("/customers", authMiddleware, async (req, res) => {
       .status(400)
       .json({ message: "you are not allowed for this service" });
   const search = req.query.name ? req.query.name : "";
-  const min=req.query.min ?req.query.min :0
+  const min = req.query.min ? req.query.min : 0;
 
   const customers = await CustomerUser.findAll({
     where: {
@@ -72,7 +72,7 @@ adminRouter.get("/customers", authMiddleware, async (req, res) => {
         { fullName: { [Op.like]: `%${search}%` } },
         { customerID: { [Op.like]: `%${search}%` } },
       ],
-       totalSharePaidAmount: { [Op.gte]: min}
+      totalSharePaidAmount: { [Op.gte]: min },
     },
   });
 
@@ -172,6 +172,7 @@ adminRouter.post(
       totalSharePaid: parseInt(req.body.totalSharePaid),
       totalSharePromisedAmount: parseInt(req.body.totalSharePromisedAmount),
       totalSharePaidAmount: parseInt(req.body.totalSharePaidAmount),
+      ServiceCharge: parseInt(req.body.ServiceCharge),
       fullyPayed:
         req.body.totalSharePromised === req.body.totalSharePaid ? true : false,
     });
@@ -258,6 +259,7 @@ adminRouter.put(
       totalSharePaid: parseInt(req.body.totalSharePaid),
       totalSharePromisedAmount: parseInt(req.body.totalSharePromisedAmount),
       totalSharePaidAmount: parseInt(req.body.totalSharePaidAmount),
+      ServiceCharge: parseInt(req.body.ServiceCharge),
       fullyPayed:
         req.body.totalSharePromised === req.body.totalSharePaid ? true : false,
     });
@@ -476,71 +478,91 @@ adminRouter.get("/customers/stat", authMiddleware, async (req, res) => {
     totalShareHoldersCompletelyPaid,
     totalMoneyPromised,
     totalMoneyPaid,
+
     startedPay,
+
     customersPaid10kAndAbove,
     moneyPaid10kAndAbove,
     promisedMoney10kAndAbove,
     paidShare10kAndAbove,
     promisedShare10kAndAbove,
 
-
     customersPaidBelow10k,
     moneyPaidBelow10k,
     promisedMoneyBelow10k,
     paidShareBelow10k,
     promisedShareBelow10k,
-    
   ] = await Promise.all([
+    //paid share
     CustomerUser.sum("totalSharePaid", {
       where: { totalSharePaid: { [Op.gt]: 1 } },
     }),
+    //requested share
     CustomerUser.sum("totalSharePromised"),
+    //share holders
     CustomerUser.count(),
+    //completed payement
     CustomerUser.count({
       where: { fullyPayed: true },
     }),
+    //money promised
     CustomerUser.sum("totalSharePromisedAmount"),
+    //money paid
     CustomerUser.sum("totalSharePaidAmount", {
       where: { totalSharePaidAmount: { [Op.gt]: 1 } },
     }),
-    CustomerUser.count( {
+    //started payment
+    CustomerUser.count({
       where: { totalSharePaidAmount: { [Op.gte]: 1 } },
     }),
 
-    CustomerUser.count( {
+    //customers above 10k
+
+    //customer 10k above
+    CustomerUser.count({
       where: { totalSharePaidAmount: { [Op.gte]: 10000 } },
     }),
+    //money paid  10k above
     CustomerUser.sum("totalSharePaidAmount", {
       where: { totalSharePaidAmount: { [Op.gte]: 10000 } },
     }),
+    //money promised  10k above
     CustomerUser.sum("totalSharePromisedAmount", {
       where: { totalSharePaidAmount: { [Op.gte]: 10000 } },
     }),
+    //share paid  10k above
     CustomerUser.sum("totalSharePaid", {
       where: { totalSharePaidAmount: { [Op.gte]: 10000 } },
     }),
+    //promised share  10k above
     CustomerUser.sum("totalSharePromised", {
       where: { totalSharePaidAmount: { [Op.gte]: 10000 } },
     }),
 
+    //customers below 10k
 
-    CustomerUser.count( {
-      where: { totalSharePaidAmount: { [Op.between]: [1,9999] } },
+    //customer 10k below
+    CustomerUser.count({
+      where: { totalSharePaidAmount: { [Op.between]: [1, 9999] } },
     }),
+    //money paid  10k below
     CustomerUser.sum("totalSharePaidAmount", {
-      where: { totalSharePaidAmount: { [Op.between]: [1,9999] } },
+      where: { totalSharePaidAmount: { [Op.between]: [1, 9999] } },
     }),
+    //money promised  10k below
     CustomerUser.sum("totalSharePromisedAmount", {
-      where: { totalSharePaidAmount: { [Op.between]: [1,9999] } },
+      where: { totalSharePaidAmount: { [Op.between]: [1, 9999] } },
     }),
+    //share paid  10k below
     CustomerUser.sum("totalSharePaid", {
-      where: { totalSharePaidAmount: { [Op.between]: [1,9999] } },
+      where: { totalSharePaidAmount: { [Op.between]: [1, 9999] } },
     }),
+    //promised share  10k below
     CustomerUser.sum("totalSharePromised", {
-      where: { totalSharePaidAmount: { [Op.between]: [1,9999] } },
+      where: { totalSharePaidAmount: { [Op.between]: [1, 9999] } },
     }),
   ]);
-/**totalSharePaidAmount====>birr */
+  /**totalSharePaidAmount====>birr */
   return res.status(200).json({
     data: {
       totalShareHolders: totalShareHolders ?? 0,
@@ -549,20 +571,18 @@ adminRouter.get("/customers/stat", authMiddleware, async (req, res) => {
       totalShareHoldersCompletelyPaid: totalShareHoldersCompletelyPaid ?? 0,
       totalSharePromisedAmount: totalMoneyPromised ?? 0,
       totalSharePaidAmount: totalMoneyPaid ?? 0,
-      startedPay:startedPay,
-    customerspaid10kAndAbove:customersPaid10kAndAbove,
-    moneyPaid10kAndAbove:moneyPaid10kAndAbove,
-    promisedMoney10kAndAbove:promisedMoney10kAndAbove,
-    paidShare10kAndAbove:paidShare10kAndAbove,
-    promisedShare10kAndAbove:    promisedShare10kAndAbove,
+      startedPay: startedPay,
+      customerspaid10kAndAbove: customersPaid10kAndAbove,
+      moneyPaid10kAndAbove: moneyPaid10kAndAbove,
+      promisedMoney10kAndAbove: promisedMoney10kAndAbove,
+      paidShare10kAndAbove: paidShare10kAndAbove,
+      promisedShare10kAndAbove: promisedShare10kAndAbove,
 
-    customersPaidBelow10k:customersPaidBelow10k,
-    moneyPaidBelow10k:moneyPaidBelow10k,
-    promisedMoneyBelow10k:promisedMoneyBelow10k,
-    paidShareBelow10k:paidShareBelow10k,
-    promisedShareBelow10k:promisedShareBelow10k,
-    
-
+      customersPaidBelow10k: customersPaidBelow10k,
+      moneyPaidBelow10k: moneyPaidBelow10k,
+      promisedMoneyBelow10k: promisedMoneyBelow10k,
+      paidShareBelow10k: paidShareBelow10k,
+      promisedShareBelow10k: promisedShareBelow10k,
     },
   });
 });

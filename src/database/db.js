@@ -7,9 +7,9 @@ const config = {
   password: process.env.DB_PASS || "root",
   database: process.env.DB_NAME || "asi-share",
   logging: false,
-}
+};
 const sequelize = new Sequelize(config);
-console.log('db connection', config);
+console.log("db connection", config);
 
 sequelize
   .authenticate()
