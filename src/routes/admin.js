@@ -79,6 +79,15 @@ adminRouter.get("/customers", authMiddleware, async (req, res) => {
   return res.status(200).json({ data: customers });
 });
 
+adminRouter.get("/promised-share", async (req, res) => {
+  const promisedShare = await CustomerUser.sum({
+    where: {
+      phoneNumber: req.body.phoneNumber,
+    },
+  });
+  return res.status(200).json({ data: promisedShare });
+});
+
 adminRouter.get("/customers/profile/:id", authMiddleware, async (req, res) => {
   const adminUser = await Admin.findByPk(req.user.id);
   if (!adminUser)
