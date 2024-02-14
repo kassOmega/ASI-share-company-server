@@ -85,7 +85,7 @@ adminRouter.get("/promised-share/:phone", async (req, res) => {
       phoneNumber: req.params.phone,
     },
   });
-  return res.status(200).json({ data: promisedShare });
+  return res.status(200).json({ data: { promisedShare: promisedShare } });
 });
 
 adminRouter.get("/customers/profile/:id", authMiddleware, async (req, res) => {
