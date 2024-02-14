@@ -80,7 +80,7 @@ adminRouter.get("/customers", authMiddleware, async (req, res) => {
 });
 
 adminRouter.get("/promised-share/:phone", async (req, res) => {
-  const promisedShare = await CustomerUser.sum({
+  const promisedShare = await CustomerUser.sum("promisedShare", {
     where: {
       phoneNumber: req.params.phone,
     },
