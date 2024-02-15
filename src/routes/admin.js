@@ -71,6 +71,7 @@ adminRouter.get("/customers", authMiddleware, async (req, res) => {
       [Op.or]: [
         { fullName: { [Op.like]: `%${search}%` } },
         { customerID: { [Op.like]: `%${search}%` } },
+        { phoneNumber: { [Op.like]: `%${search}%` } },
       ],
       totalSharePaidAmount: { [Op.gte]: min },
     },
